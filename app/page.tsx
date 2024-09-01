@@ -13,7 +13,8 @@ import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ImageIcon, TypeIcon, GripVertical } from 'lucide-react'
 
-type Layer = {
+// Layer インターフェースの定義
+interface Layer {
   id: number
   type: 'image' | 'text'
   src: string
@@ -26,6 +27,7 @@ type Layer = {
   content?: string
 }
 
+// EditorState インターフェースの定義
 interface EditorState {
   layers: Layer[]
   selectedLayerId: number | null
@@ -36,6 +38,7 @@ interface EditorState {
   deleteSelectedLayer: () => void
 }
 
+// Zustand ストアの作成
 const useStore = create<EditorState>((set) => ({
   layers: [],
   selectedLayerId: null,
@@ -60,7 +63,8 @@ const useStore = create<EditorState>((set) => ({
   })),
 }))
 
-const LayerItem = ({ layer, index }) => {
+// LayerItem コンポーネントの定義（型アノテーションを追加）
+const LayerItem = ({ layer, index }: { layer: Layer; index: number }) => {
   const selectedLayerId = useStore((state) => state.selectedLayerId)
   const selectLayer = useStore((state) => state.selectLayer)
 
@@ -91,7 +95,8 @@ const LayerItem = ({ layer, index }) => {
   )
 }
 
-const ResizableImage = ({ layer }) => {
+// ResizableImage コンポーネントの定義
+const ResizableImage = ({ layer }: { layer: Layer }) => {
   const { updateLayer, selectLayer } = useStore()
   const selectedLayerId = useStore((state) => state.selectedLayerId)
   const isSelected = layer.id === selectedLayerId
@@ -101,11 +106,11 @@ const ResizableImage = ({ layer }) => {
     selectLayer(layer.id)
   }, [layer.id, selectLayer])
 
-  const handleDragStop = useCallback((_e, d) => {
+  const handleDragStop = useCallback((_e: any, d: { x: number; y: number }) => {
     updateLayer(layer.id, { x: d.x, y: d.y })
   }, [layer.id, updateLayer])
 
-  const handleResize = useCallback((_e, _direction, ref, _delta, position) => {
+  const handleResize = useCallback((_e: any, _direction: any, ref: { offsetWidth: number; offsetHeight: number }, _delta: any, position: { x: number; y: number }) => {
     updateLayer(layer.id, {
       width: ref.offsetWidth,
       height: ref.offsetHeight,
@@ -140,6 +145,7 @@ const ResizableImage = ({ layer }) => {
   )
 }
 
+// メインコンポーネント
 export default function Component() {
   const { layers, selectedLayerId, addLayer, selectLayer, deleteSelectedLayer, reorderLayers } = useStore()
   const [prompt, setPrompt] = useState('')
@@ -184,7 +190,7 @@ export default function Component() {
     }
   }, [selectLayer])
 
-  const onDragEnd = useCallback((result) => {
+  const onDragEnd = useCallback((result: any) => {
     if (!result.destination) {
       return
     }
